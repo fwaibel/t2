@@ -4,7 +4,7 @@ This part visualize the installation process with mermaid-js
 
 ## Mermaid-js
 https://mermaid-js.github.io/mermaid[About Mermaid]
-
+https://github.community/t/feature-request-support-mermaid-markdown-graph-diagrams-in-md-files/1922[Github Feature Request]
 
 ## How to create diagrams
 * Go to https://mermaid-js.github.io/mermaid-live-editor/#/edit/eyJjb2RlIjoiZmxvd2NoYXJ0IFRCXG4gICAgYzEtLT5hMlxuICAgIHN1YmdyYXBoIG9uZVxuICAgIGExLS0-YTJcbiAgICBlbmRcbiAgICBzdWJncmFwaCB0d29cbiAgICBiMS0tPmIyXG4gICAgZW5kXG4gICAgc3ViZ3JhcGggdGhyZWVcbiAgICBjMS0tPmMyXG4gICAgZW5kXG4gICAgb25lIC0tPiB0d29cbiAgICB0aHJlZSAtLT4gdHdvXG4gICAgdHdvIC0tPiBjMiIsIm1lcm1haWQiOnt9LCJ1cGRhdGVFZGl0b3IiOmZhbHNlfQ[Mermaid Live Editor]
@@ -12,6 +12,3 @@ https://mermaid-js.github.io/mermaid[About Mermaid]
 * copy the generated markdown
 * add the markdown to new file
 * add the code of your chart as markdown code block to your new file
-
-
-
