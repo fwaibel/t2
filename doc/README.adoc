@@ -4,6 +4,8 @@ This part visualize the installation process with mermaid-js
 
 ## Mermaid-js
 https://mermaid-js.github.io/mermaid[About Mermaid]
+
+For better Github integration upvote the feature request
 https://github.community/t/feature-request-support-mermaid-markdown-graph-diagrams-in-md-files/1922[Github Feature Request]
 
 ## How to create diagrams
