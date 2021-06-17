@@ -18,16 +18,38 @@
   when: 
     - ansible_distribution == "Debian"
 
+- name: Create directory for drop-in file for operator service
+  file:
+    path: /lib/systemd/system/{{ item.name }}.service.d/
+    state: directory
+  loop: "{{ operators }}"
+
+- name: Add drop-in file for operator service to run under stackable-user
+  template:
+    src: service-user.j2
+    dest: /lib/systemd/system/{{ item.name }}.service.d/service-user.conf
+  loop: "{{ operators }}"
+  notify: restart operators
+
+- name: Remove older CRD directory if present
+  file:
+    path: /tmp/crds/
+    state: absent
+
+- name: Create CRD directory
+  file:
+    path: /tmp/crds/
+    state: directory
+
 - name: Download source repos of the orchestrators and extract CRDs
   shell: |
-    mkdir -p /tmp/crds/
     curl {{ item.repo_archive_url }} > /tmp/crds/{{ item.name }}.zip
     unzip /tmp/crds/{{ item.name }}.zip -d /tmp/crds/
   loop: "{{ operators }}"
   notify: restart operators
 
 - name: Apply CRDs
-  shell: "kubectl apply -f /tmp/crds/{{ item.crd_folder_in_archive }}/deploy/crd/"
+  shell: "/usr/local/bin/kubectl apply -f /tmp/crds/{{ item.crd_folder_in_archive }}/deploy/crd/"
   args:
     warn: no
   loop: "{{ operators }}"
