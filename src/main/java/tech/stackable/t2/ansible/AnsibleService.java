@@ -1,24 +1,24 @@
 package tech.stackable.t2.ansible;
 
-import java.io.IOException;
-import java.nio.file.Path;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import tech.stackable.t2.process.ProcessLogger;
+
+import java.io.IOException;
+import java.nio.file.Path;
 
 @Service
 public class AnsibleService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AnsibleService.class);
 
-    @Autowired
-    @Qualifier("workspaceDirectory")
-    private Path workspaceDirectory;
+    private final Path workspaceDirectory;
+
+    public AnsibleService(@Qualifier("workspaceDirectory") Path workspaceDirectory) {
+        this.workspaceDirectory = workspaceDirectory;
+    }
 
     public AnsibleResult run(Path workingDirectory) {
         LOGGER.info("Running Ansible on {}", workingDirectory);

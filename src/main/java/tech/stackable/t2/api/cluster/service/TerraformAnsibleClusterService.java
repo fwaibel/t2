@@ -289,7 +289,7 @@ public class TerraformAnsibleClusterService {
      * Cleans up list of clusters regularly.
      */
     @Scheduled(cron = "0 0 * * * *") // on the hour
-    private void cleanup() {
+    void cleanup() {
         LOGGER.info("cleaning up clusters ...");
         List<UUID> clustersToDelete = this.clusters.values()
                 .stream()

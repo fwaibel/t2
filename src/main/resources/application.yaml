@@ -24,3 +24,7 @@ t2:
     enabled: true
     cluster-domain: stackable.tech
     livedns-api-url: https://api.gandi.net/v5/livedns
+
+camunda.bpm.admin-user:
+  id: demo
+  password: demo
