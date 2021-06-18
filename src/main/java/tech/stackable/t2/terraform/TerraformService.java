@@ -1,31 +1,27 @@
 package tech.stackable.t2.terraform;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import tech.stackable.t2.process.ProcessLogger;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
-import tech.stackable.t2.process.ProcessLogger;
-
 @Service
 public class TerraformService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TerraformService.class);
 
-    @Autowired
-    @Qualifier("workspaceDirectory")
-    private Path workspaceDirectory;
+    private final Properties credentials;
 
-    @Autowired
-    @Qualifier("credentials")
-    private Properties credentials;
+    public TerraformService(@Qualifier("credentials") Properties credentials) {
+        this.credentials = credentials;
+    }
 
     public TerraformResult init(Path workingDirectory, String datacenter) {
         LOGGER.info("Running Terraform init on {}", workingDirectory);
@@ -72,9 +68,8 @@ public class TerraformService {
             ProcessBuilder processBuilder = new ProcessBuilder()
                     .command("sh", "-c", String.format("terraform %s %s -no-color", command, params))
                     .directory(workingDirectory.toFile());
-            this.credentials.forEach((key, value) -> {
-                processBuilder.environment().put(String.format("TF_VAR_%s", key), value.toString());
-            });
+            this.credentials.forEach((key, value) ->
+                    processBuilder.environment().put(String.format("TF_VAR_%s", key), value.toString()));
             processBuilder.environment().put("TF_VAR_ionos_datacenter", datacenter);
             Process process = processBuilder.redirectErrorStream(true).start();
             ProcessLogger outLogger = ProcessLogger.start(process.getInputStream(), workingDirectory.resolve("cluster.log"), MessageFormat.format("terraform-{0}", command));
