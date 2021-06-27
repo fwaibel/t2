@@ -1,13 +1,5 @@
 package tech.stackable.t2;
 
-import static java.nio.file.Files.createDirectories;
-import static java.nio.file.Files.exists;
-import static java.nio.file.Files.isDirectory;
-import static java.nio.file.Files.isWritable;
-
-import java.io.IOException;
-import java.nio.file.Path;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +8,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.scheduling.annotation.EnableScheduling;
+
+import java.io.IOException;
+import java.nio.file.Path;
+
+import static java.nio.file.Files.*;
 
 @SpringBootApplication
-@EnableScheduling
 public class T2ServerApplication {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(T2ServerApplication.class);
