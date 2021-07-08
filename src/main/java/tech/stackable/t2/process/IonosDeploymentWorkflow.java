@@ -22,22 +22,7 @@ public class IonosDeploymentWorkflow {
     @PostConstruct
     public void init() {
 
-//        BpmnModelInstance modelInstance = Bpmn.createProcess()
-//                .startEvent()
-//                .userTask()
-//                .exclusiveGateway()
-//                .name("What to do next?")
-//                .condition("Call an agent", "#{action = 'call'}")
-//                .scriptTask()
-//                .endEvent()
-//                .moveToLastGateway()
-//                .condition("Create a task", "#{action = 'task'}")
-//                .serviceTask()
-//                .endEvent()
-//                .done();
-
         WorkflowBuilder workflowBuilder = WorkflowBuilder.newWorkflow("dsl-ionos-deployment") //
-//                .activity("terraformAdapter", TerraformAdapter.class) //
                 .springActivity("Terraform init", "terraformInitActivity") //
                 .exclusiveGateway("init")
                 .conditionalSpringActivity("ERROR", "#{terraformResult == 'ERROR'}", "Terraform init failed", "terraformInitFailedActivity")
@@ -47,16 +32,19 @@ public class IonosDeploymentWorkflow {
                 .exclusiveGateway("plan")
                 .conditionalSpringActivity("ERROR", "#{terraformResult == 'ERROR'}", "Terraform plan failed", "terraformPlanFailedActivity")
                 .moveToLastGateway()
-//                .conditionalSpringActivity("CHANGES_PRESENT", "#{terraformResult == 'SUCCESS'}", "Terraform apply", "terraformApplyActivity")
 
                 .conditionalSpringActivity("SUCCESS", "#{terraformResult != 'ERROR'}", "Terraform apply", "terraformApplyActivity")
                 .exclusiveGateway("apply")
                 .conditionalSpringActivity("ERROR", "#{terraformResult == 'ERROR'}", "Terraform apply failed", "terraformApplyFailedActivity")
                 .moveToLastGateway()
+
                 .conditionalSpringActivity("SUCCESS", "#{terraformResult != 'ERROR'}", "Ansible run", "ansibleRunActivity")
+                .exclusiveGateway("run")
+                .conditionalSpringActivity("ERROR", "#{ansibleResult == 'ERROR'}", "Ansible run failed", "ansibleRunFailedActivity")
+                .springActivity("Terraform destroy", "terraformDestroyActivity") //
+                .moveToLastGateway()
 
                 .end() //
-//                .triggerCompensationOnAnyError()
                 ;
         BpmnModelInstance modelInstance = workflowBuilder.getModel();
 

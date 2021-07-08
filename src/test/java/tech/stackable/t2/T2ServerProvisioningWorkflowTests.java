@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+import tech.stackable.t2.ansible.AnsibleResult;
+import tech.stackable.t2.ansible.AnsibleService;
 import tech.stackable.t2.terraform.TerraformResult;
 import tech.stackable.t2.terraform.TerraformService;
 
@@ -18,8 +20,8 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.*;
-import static tech.stackable.t2.process.TerraformInitActivity.VAR_DATACENTER;
-import static tech.stackable.t2.process.TerraformInitActivity.VAR_WORKING_DIRECTORY;
+import static tech.stackable.t2.process.AnsibleRunActivity.VAR_ANSIBLE_RESULT;
+import static tech.stackable.t2.process.TerraformInitActivity.*;
 
 @ActiveProfiles("camunda")
 @SpringBootTest(
@@ -40,6 +42,9 @@ class T2ServerProvisioningWorkflowTests {
 
     @MockBean
     private TerraformService terraformService;
+
+    @MockBean
+    private AnsibleService ansibleService;
 
     @Test
     void contextLoads() {
@@ -69,6 +74,7 @@ class T2ServerProvisioningWorkflowTests {
         when(terraformService.init(notNull(), notNull())).thenReturn(TerraformResult.SUCCESS);
         when(terraformService.plan(notNull(), notNull())).thenReturn(TerraformResult.SUCCESS);
         when(terraformService.apply(notNull(), notNull())).thenReturn(TerraformResult.SUCCESS);
+        when(ansibleService.run(notNull())).thenReturn(AnsibleResult.SUCCESS);
 
         Map<String, Object> params = new HashMap<>();
         params.put(VAR_WORKING_DIRECTORY, "/tmp");
@@ -78,9 +84,17 @@ class T2ServerProvisioningWorkflowTests {
         verify(terraformService, times(1)).init(notNull(), eq("datacenter-junit"));
         verify(terraformService, times(1)).plan(notNull(), eq("datacenter-junit"));
         verify(terraformService, times(1)).apply(notNull(), eq("datacenter-junit"));
+        verify(ansibleService, times(1)).run(notNull());
 
         assertThat(pi.isEnded()).isTrue();
         assertThat(runtimeService.createProcessInstanceQuery().count()).isEqualTo(0);
+
+        runtimeService.createVariableInstanceQuery().processInstanceIdIn(pi.getId()).list();
+
+        assertThat(processEngine.getHistoryService().createHistoricVariableInstanceQuery()
+                .processInstanceId(pi.getId()).variableName(VAR_TERRAFORM_RESULT).singleResult().getValue()).isEqualTo("SUCCESS");
+        assertThat(processEngine.getHistoryService().createHistoricVariableInstanceQuery()
+                .processInstanceId(pi.getId()).variableName(VAR_ANSIBLE_RESULT).singleResult().getValue()).isEqualTo("SUCCESS");
     }
 
     @Test
@@ -98,6 +112,11 @@ class T2ServerProvisioningWorkflowTests {
 
         assertThat(pi.isEnded()).isTrue();
         assertThat(runtimeService.createProcessInstanceQuery().count()).isEqualTo(0);
+
+        assertThat(processEngine.getHistoryService().createHistoricVariableInstanceQuery()
+                .processInstanceId(pi.getId()).variableName(VAR_TERRAFORM_RESULT).singleResult().getValue()).isEqualTo("ERROR");
+        assertThat(processEngine.getHistoryService().createHistoricVariableInstanceQuery()
+                .processInstanceId(pi.getId()).variableName(VAR_ANSIBLE_RESULT).singleResult()).isNull();
     }
 
     @Test
