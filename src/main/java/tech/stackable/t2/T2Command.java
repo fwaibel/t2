@@ -39,12 +39,16 @@ public class T2Command implements Callable<Void> {
     @CommandLine.Parameters(index = "0", paramLabel = "Datacenter", description = "Name of the datacenter.\nImportant: Should not contain *non* T2 nodes!")
     private String datacenter;
 
+    @CommandLine.Parameters(index = "1", paramLabel = "Cluster Definition", description = "YAML file containing the cluster definition.")
+    private File clusterDefinition;
+
     @Override
     public Void call() {
         Map<String, Object> params = new HashMap<>();
         params.put(VAR_DRY_RUN, dryRun);
         params.put(VAR_WORKING_DIRECTORY, workingDirectory.getAbsolutePath());
         params.put(VAR_DATACENTER, datacenter);
+        params.put()
         ProcessInstance pi = runtimeService.startProcessInstanceByKey(processInstanceKey, params);
 
         if (pi.isEnded()) {

@@ -23,7 +23,12 @@ public class IonosDeploymentWorkflow {
     public void init() {
 
         WorkflowBuilder workflowBuilder = WorkflowBuilder.newWorkflow("dsl-ionos-deployment") //
-                .springActivity("Terraform init", "terraformInitActivity") //
+                .springActivity("Prepare workspace", "prepareWorkspaceActivity") //
+                .exclusiveGateway("prep")
+                .conditionalSpringActivity("ERROR", "#{preparationResult == 'ERROR'}", "Workspace preparation failed", "prepareWorkspaceFailedActivity")
+                .moveToLastGateway()
+
+                .conditionalSpringActivity("SUCCESS", "#{preparationResult != 'ERROR'}", "Terraform init", "terraformInitActivity") //
                 .exclusiveGateway("init")
                 .conditionalSpringActivity("ERROR", "#{terraformResult == 'ERROR'}", "Terraform init failed", "terraformInitFailedActivity")
                 .moveToLastGateway()

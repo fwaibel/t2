@@ -1,0 +1,24 @@
+apiVersion: t2.stackable.tech/v1
+kind: Infra
+template: demo-centos-7
+metadata:
+  name: stackable-demo
+  description: "demo centos8"
+domain: stackable.demo
+publicKeys:
+  - "{{t2-ssh-key}}"
+spec:
+  region: de/fra
+  nodes:
+    main:
+      numberOfNodes: 1
+      numberOfCores: 2
+      memoryMb: 8192
+      diskType: HDD
+      diskSizeGb: 15
+    worker:
+      numberOfNodes: 1
+      numberOfCores: 2
+      memoryMb: 8192
+      diskType: HDD
+      diskSizeGb: 15
