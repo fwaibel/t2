@@ -27,11 +27,14 @@ public class T2Command implements Callable<Void> {
     @Autowired
     private RuntimeService runtimeService;
 
-    @CommandLine.Option(names = "--dry-run",  description = "Make a dry-run. False by default.")
+    @CommandLine.Option(names = "--dry-run", paramLabel = "DRY_RUN", description = "Make a dry-run. False by default.")
     private boolean dryRun;
 
     @CommandLine.Option(names = { "-w", "--working-directory" }, paramLabel = "WORKING_DIRECTORY", description = "the working directory")
     private File workingDirectory = new File("/tmp");
+
+    @CommandLine.Option(names = { "-k", "--process-instance-key"}, paramLabel = "PROCESS_INSTANCE_KEY", description = "Process instance key")
+    private String processInstanceKey = "dsl-ionos-deployment";
 
     @CommandLine.Parameters(index = "0", paramLabel = "Datacenter", description = "Name of the datacenter.\nImportant: Should not contain *non* T2 nodes!")
     private String datacenter;
@@ -42,7 +45,7 @@ public class T2Command implements Callable<Void> {
         params.put(VAR_DRY_RUN, dryRun);
         params.put(VAR_WORKING_DIRECTORY, workingDirectory.getAbsolutePath());
         params.put(VAR_DATACENTER, datacenter);
-        ProcessInstance pi = runtimeService.startProcessInstanceByKey("dsl-ionos-deployment", params);
+        ProcessInstance pi = runtimeService.startProcessInstanceByKey(processInstanceKey, params);
 
         if (pi.isEnded()) {
             System.exit(0);
