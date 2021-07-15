@@ -1,5 +1,11 @@
 package tech.stackable.t2;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Callable;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,11 +13,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import picocli.CommandLine;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Callable;
-
+import static tech.stackable.t2.process.PrepareWorkspaceActivity.VAR_CLUSTER_DEFINITION;
 import static tech.stackable.t2.process.T2ProcessVariables.VAR_DRY_RUN;
 import static tech.stackable.t2.process.TerraformInitActivity.VAR_DATACENTER;
 import static tech.stackable.t2.process.TerraformInitActivity.VAR_WORKING_DIRECTORY;
@@ -48,7 +50,15 @@ public class T2Command implements Callable<Void> {
         params.put(VAR_DRY_RUN, dryRun);
         params.put(VAR_WORKING_DIRECTORY, workingDirectory.getAbsolutePath());
         params.put(VAR_DATACENTER, datacenter);
-        params.put()
+        try {
+            String clusterDefinitionAsString = Files.readString(clusterDefinition.toPath());
+            params.put(VAR_CLUSTER_DEFINITION, clusterDefinitionAsString);
+        } catch (IOException e) {
+            System.out.println("Failed to load cluster definition!");
+            System.out.println(e.getMessage());
+            System.exit(1);
+        }
+
         ProcessInstance pi = runtimeService.startProcessInstanceByKey(processInstanceKey, params);
 
         if (pi.isEnded()) {

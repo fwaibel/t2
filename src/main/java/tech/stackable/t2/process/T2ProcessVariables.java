@@ -1,13 +1,13 @@
 package tech.stackable.t2.process;
 
-import org.camunda.bpm.engine.delegate.VariableScope;
-import tech.stackable.t2.ansible.AnsibleResult;
-import tech.stackable.t2.api.cluster.YamlClusterDefinitionReader;
-import tech.stackable.t2.terraform.TerraformResult;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import org.camunda.bpm.engine.delegate.VariableScope;
+import tech.stackable.t2.ansible.AnsibleResult;
+import tech.stackable.t2.api.cluster.YamlClusterDefinitionReader;
+import tech.stackable.t2.api.cluster.YamlClusterDefinitionWriter;
+import tech.stackable.t2.terraform.TerraformResult;
 
 import static tech.stackable.t2.process.AnsibleRunActivity.VAR_ANSIBLE_RESULT;
 import static tech.stackable.t2.process.TerraformInitActivity.VAR_TERRAFORM_RESULT;
@@ -36,7 +36,8 @@ public class T2ProcessVariables {
     }
 
     public void setClusterDefinition(Map<String, Object> clusterDefinition) {
-        variableScope.setVariable(PrepareWorkspaceActivity.VAR_CLUSTER_DEFINITION, clusterDefinition);
+        String clusterDefinitionAsString = new YamlClusterDefinitionWriter().convert(clusterDefinition);
+        variableScope.setVariable(PrepareWorkspaceActivity.VAR_CLUSTER_DEFINITION, clusterDefinitionAsString);
     }
 
     public Path getWorkingDirectory() {
